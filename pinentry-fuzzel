@@ -1,0 +1,98 @@
+#!/bin/bash
+
+decode_url() {
+    printf '%b' "${1//%/\\x}"
+}
+
+notify() {
+    appname=$1
+    summary=$2
+    body=$3
+    expire_time="${4:-0}"
+    dbus-send \
+        --session \
+        --dest=org.freedesktop.Notifications \
+        --type=method_call \
+        --print-reply \
+        /org/freedesktop/Notifications org.freedesktop.Notifications.Notify \
+        string:"$appname" \
+        uint32:0 \
+        string: \
+        string:"$summary" \
+        string:"$body" \
+        array:string: \
+        dict:string:string: \
+        int32:"$expire_time" >/dev/null
+}
+
+TITLE=""
+DESC=""
+PROMPT=""
+
+echo "OK Please go ahead"
+while read -r cmd rest; do
+    case $cmd in
+    GETINFO)
+        case "$rest" in
+        flavor)
+            echo "D fuzzel"
+            echo "OK"
+            ;;
+        version)
+            echo "D 0.1.0"
+            echo "OK"
+            ;;
+        ttyinfo)
+            echo "D - - -"
+            echo "OK"
+            ;;
+        pid)
+            echo "D $$"
+            echo "OK"
+            ;;
+        esac
+        ;;
+    SETTITLE)
+        TITLE=$(decode_url "$rest")
+        echo "OK"
+        ;;
+    SETDESC)
+        DESC=$(decode_url "$rest")
+        echo "OK"
+        ;;
+    SETPROMPT)
+        PROMPT=$(decode_url "$rest")
+        echo "OK"
+        ;;
+    SETERROR)
+        notify "$TITLE" "$DESC" "$rest" 3000
+        echo "OK"
+        ;;
+    GETPIN | getpin)
+        result=$(fuzzel \
+            --prompt-only "" \
+            --placeholder="${PROMPT}" \
+            --cache /dev/null \
+            --password \
+            --dmenu)
+        if [[ -z $result ]]; then
+            echo "ERR 83886179 Operation cancelled <Pinentry>"
+            exit 1
+        else
+            echo "D $result"
+        fi
+        echo "OK"
+        ;;
+    BYE | bye)
+        echo "OK closing connection"
+        exit 0
+        ;;
+    MESSAGE | message)
+        notify "$TITLE" "$DESC" ""
+        echo "OK"
+        ;;
+    *)
+        echo "OK"
+        ;;
+    esac
+done
