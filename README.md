@@ -26,3 +26,16 @@ You know how to use this.
 - This is a minimal implementation of a PIN entry dialog, and it does not fully comply with all [pinentry program guidelines](https://github.com/gpg/pinentry/blob/master/doc/pinentry.texi).
 - `fuzzel` is unable to display buttons, so user interaction is limited.
 - Not all possible messages or edge cases are handled.
+
+## TODO
+
+- [ ] Handle buttons as fuzzel input.
+- [ ] Rewrite the script in Rust for better performance and maintainability.
+
+## Acknowledgements
+
+
+- [gpg/pinentry](https://github.com/gpg/pinentry)
+- [dnkl/fuzzel](https://codeberg.org/dnkl/fuzzel)
+- [james-nesbitt/pinentry-fuzzel](https://github.com/james-nesbitt/pinentry-fuzzel)
+- [t-8ch/pinentry-bemenu](https://github.com/t-8ch/pinentry-bemenu)
